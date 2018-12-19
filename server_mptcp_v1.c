@@ -101,14 +101,21 @@ int main(int argc, char* argv[])
         }
     }
 
+    //for reusing IPC sockets without an issue
+    for(int i = 0; i < NUM_CHILDREN; i++){
+        for(int j = 0; j < 2; j++){
+            setsockopt(socket_pair_ipc[i][j], SOL_SOCKET,SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+        }
+    }
+
     //set all 3 pairs of sockets as non blocking sockets
-    // for(int i = 0; i < NUM_CHILDREN; i++){
-    //     for(int j = 0; j < 2; j++){
-    //         flags = fcntl(socket_pair_ipc[i][j], F_GETFL);
-    //         flags |= O_NONBLOCK;
-    //         fcntl(socket_pair_ipc[i][j], F_SETFL, flags);
-    //     }
-    // }
+    for(int i = 0; i < NUM_CHILDREN; i++){
+        for(int j = 0; j < 2; j++){
+            flags = fcntl(socket_pair_ipc[i][j], F_GETFL);
+            flags |= O_NONBLOCK;
+            fcntl(socket_pair_ipc[i][j], F_SETFL, flags);
+        }
+    }
 
     //-----------------------------------------------------------------------------------------//
     //-----------------------------------MPTCP CORE LOGIC--------------------------------------//
@@ -175,7 +182,7 @@ int main(int argc, char* argv[])
         printf("\nAccepted the child client's connection\n");
 
         while(1){
-            
+
             //read data from child data socket
             if((n = read(acc_child[child_num], data_buf_child, NUM_BYTES)) < 0){
     			perror("\n read() failed \n");
@@ -184,7 +191,7 @@ int main(int argc, char* argv[])
             //for safety
             usleep(1000);
 
-			
+
             printf("child %d writing to parent: %.*s\n",child_num,(int)sizeof(data_buf_child),data_buf_child);
 
 
@@ -264,7 +271,7 @@ int main(int argc, char* argv[])
         printf("\nAccepted the client's connection\n");
 
         while(1){
-           
+
             //read client's DSS message
             if((n = read(acc, dss, 3*sizeof(int))) < 0){
                 perror("\n read() failed \n");
@@ -318,10 +325,10 @@ int main(int argc, char* argv[])
                     // }
                    if(read_from_child[i] >0){
                         Read_pointer[i] += read_from_child[i]/NUM_BYTES;
-                    } 
+                    }
                 }
 
-                
+
 
             }
 
@@ -343,7 +350,7 @@ int main(int argc, char* argv[])
 			}
             counter++;
 		}
-        printf("final byte count: %d\n", counter);
+        printf("\nfinal byte count: %d\n", counter);
 
         //prevent zombie children
         wait(NULL);
