@@ -1,0 +1,21 @@
+Project by Ashraf Shaikh (implemented server) and Ben Simon (implemented client)
+
+How to run:
+$make
+
+For execution, in two terminals;
+(Make sure to run the server first)
+In one terminal:
+$./server localhost
+Or
+$./server 127.0.0.1
+Or
+$./server <your.I.P.address>
+Eg:
+$./server 192.168.0.5 
+
+In separate terminal:
+./client localhost
+(IP addresses concepts similar to server)
+
+All 992 bytes will be sent automatically and remapped perfectly
